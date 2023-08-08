@@ -4,11 +4,12 @@ services:
     image: rabbitmq:3-management
     hostname: broker-mq
     container_name: broker-worker
+    restart: unless-stopped
     env_file:
     - ./environment/broker.env
     ports:
-      - 5672:5672
-      - 15672:15672
+      - 1200:5672
+      - 2000:15672
     depends_on:
     - producer
     - consumer
@@ -20,7 +21,9 @@ services:
     env_file:
     - ./environment/mysql.env
     volumes:
-    - 
+    - database:/var/lib/mysql
+    ports:
+    - 1100:3306
 
   producer:
     container_name: producer-worker
@@ -29,7 +32,9 @@ services:
       dockerfile: Dockerfile
       context: ./producer
     env_file: 
-    - ./environment/producer.env
+    - ./environment/worker.env
+    ports:
+    - 2100:5000
     depends_on:
     - db
 
@@ -40,9 +45,11 @@ services:
       dockerfile: Dockerfile
       context: ./consumer
     env_file:
-    - ./environment/consumer.env
+    - ./environment/worker.env
     depends_on:
     - db
 
-
+volumes:
+  database:
+    name: mysql-data
 
