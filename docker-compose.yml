@@ -1,0 +1,48 @@
+version: '3.7'
+services:
+  broker:
+    image: rabbitmq:3-management
+    hostname: broker-mq
+    container_name: broker-worker
+    env_file:
+    - ./environment/broker.env
+    ports:
+      - 5672:5672
+      - 15672:15672
+    depends_on:
+    - producer
+    - consumer
+
+  db: 
+    container_name: mysql-database
+    image: mysql:5.7.22
+    restart: unless-stopped
+    env_file:
+    - ./environment/mysql.env
+    volumes:
+    - 
+
+  producer:
+    container_name: producer-worker
+    restart: unless-stopped
+    build: 
+      dockerfile: Dockerfile
+      context: ./producer
+    env_file: 
+    - ./environment/producer.env
+    depends_on:
+    - db
+
+  consumer:
+    container_name: producer-worker
+    restart: unless-stopped
+    build: 
+      dockerfile: Dockerfile
+      context: ./consumer
+    env_file:
+    - ./environment/consumer.env
+    depends_on:
+    - db
+
+
+
